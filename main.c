@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// structures
 struct Book
 {
     char title[100];
@@ -16,20 +17,59 @@ struct Library
     int availableBookCount;
 };
 
-void showBookList(struct Library *libPtr)
+// user defined functions
+void trim(char s[]);
+void addNewBook(struct Library *libPtr);
+void issueBook(struct Library *libPtr);
+void returnBook(struct Library *libPtr);
+void showBookList(struct Library *libPtr);
+struct Library loadLibrary();
+
+int main()
 {
-    printf("Listing All Available Books\n\n");
-    printf("%s\t%s\t\t\t%60s\n", "Sl.", "Title", "Author");
-    printf("====\t===========================================\t\t\t====================\n");
-    int bookCount = libPtr->totalBookCount; // note to self Size of returns bytes.
-    for (int i = 0; i < bookCount; i++)
+    struct Library lib = loadLibrary();
+    printf("Welcome to library manager v0.1\n\nSelect your operation\n");
+    while (1)
     {
-        if (strlen(libPtr->books[i].title) > 1)
-            printf("%4d. %45s\t\t\t%20s\n", i + 1, libPtr->books[i].title, libPtr->books[i].author);
+        printf("A(dd) | I(ssue) | R(eturn) | L(ist)\n> ");
+        char input = '\0';
+        fflush(stdin);
+        scanf(" %c", &input);
+        if (input == 'A' || input == 'a')
+        {
+            addNewBook(&lib);
+        }
+        else if (input == 'I' || input == 'i')
+        {
+            issueBook(&lib);
+        }
+        else if (input == 'R' || input == 'r')
+        {
+            returnBook(&lib);
+        }
+        else if (input == 'L' || input == 'l')
+        {
+            showBookList(&lib);
+        }
+        else
+        {
+            printf("Invalid Choice, Please try again.");
+        }
+        printf("\n\n");
     }
 }
 
-int main()
+void trim(char s[])
+{
+    //? for getting rid of the '\n' at the end of fgets;
+    int x = strlen(s) - 1;
+    if (s[x] == '\n')
+    {
+        s[x] = '\0';
+    }
+}
+
+struct Library loadLibrary()
 {
     struct Library lib = {
         {
@@ -46,7 +86,7 @@ int main()
             {"The Alchemist", "Paulo Coelho", 9780061122415, 1},
             {"The Adventures of Sherlock Holmes", "Arthur Conan Doyle", 9780141441404, 1},
             {"Moby Dick", "Herman Melville", 9780140390642, 1},
-            {"Jane Eyre", "Charlotte Brontë", 9780141439044, 1},
+            {"Jane Eyre", "Charlotte Bronte", 9780141439044, 1},
             {"Little Women", "Louisa May Alcott", 9780141439754, 1},
             {"The Picture of Dorian Gray", "Oscar Wilde", 9780141442487, 1},
             {"Dune", "Frank Herbert", 9780441172719, 1},
@@ -66,30 +106,87 @@ int main()
             {"Invisible Man", "Ralph Ellison", 9780679732761, 1},
         },
         31,
+        31,
     };
-    printf("Welcome to library manager v0.1\n\n");
-    printf("Select your operation\nA(dd) | I(ssue) | R(eturn) | L(ist)\n> ");
-    char input = '\0';
-    scanf("%c", &input);
-    switch (input)
+    return lib;
+}
+
+void issueBook(struct Library *libPtr)
+{
+    showBookList(libPtr);
+    fflush(stdin);
+    printf("Enter Book Serial No: ");
+    int index;
+    scanf("%d", &index);
+
+    if (libPtr->books[index - 1].available)
     {
-    case 'A':
-        printf("Add New Book\n");
-        break;
+        libPtr->books[index - 1].available = 0;
+        printf("'%s' Issued Successfully!\n", libPtr->books[index - 1].title);
+        libPtr->availableBookCount--;
+    }
+    else
+    {
+        printf("'%s' is not available at the moment.\n", libPtr->books[index - 1].title);
+    }
+}
 
-    case 'I':
-        printf("Issue Book to user\n");
-        break;
+void returnBook(struct Library *libPtr)
+{
+    showBookList(libPtr);
+    fflush(stdin);
+    printf("Enter Book Serial No: ");
+    int index;
+    scanf("%d", &index);
 
-    case 'R':
-        printf("Return Book to the library\n");
-        break;
+    if (!libPtr->books[index - 1].available)
+    {
+        libPtr->books[index - 1].available = 1;
+        printf("'%s' Returned Successfully.\n", libPtr->books[index - 1].title);
+        libPtr->availableBookCount++;
+    }
+    else
+    {
+        printf("'%s' has not been issued yet.\n", libPtr->books[index - 1].title);
+    }
+}
 
-    case 'L':
-        showBookList(&lib);
-        break;
+void addNewBook(struct Library *libPtr)
+{
+    fflush(stdin);
+    int bookCount = libPtr->totalBookCount;
+    printf("Enter Book Title: ");
+    fgets(libPtr->books[bookCount].title, 100, stdin);
+    trim(libPtr->books[bookCount].title);
+    printf("Enter Book Author: ");
+    fgets(libPtr->books[bookCount].author, 100, stdin);
+    trim(libPtr->books[bookCount].author);
+    printf("Enter Book ISBN: ");
+    scanf("%lf", &libPtr->books[bookCount].ISBN);
+    libPtr->books[bookCount].available = 1;
+    libPtr->totalBookCount++;
+    libPtr->availableBookCount++;
+    printf("Book Added Successfully\n");
+}
 
-    default:
-        break;
+void showBookList(struct Library *libPtr)
+{
+    printf("Listing All Books\nTotal: %d | Available: %d\n", libPtr->totalBookCount, libPtr->availableBookCount);
+    printf("%s\t%s\t\t\t%60s\n", "Sl.", "Title", "Author");
+    printf("====\t===========================================\t\t\t====================\n");
+    int bookCount = libPtr->totalBookCount; // note to self Size of returns bytes.
+    for (int i = 0; i < bookCount; i++)
+    {
+        if (strlen(libPtr->books[i].title) > 1)
+        {
+            if (libPtr->books[i].available)
+            {
+                printf("%4d. %45s\t\t\t%20s\n", i + 1, libPtr->books[i].title, libPtr->books[i].author);
+            }
+            else
+            {
+                printf("%4d. %30s(Not Available)\t\t\t%20s\n", i + 1, libPtr->books[i].title, libPtr->books[i].author);
+            }
+        }
     }
 }
