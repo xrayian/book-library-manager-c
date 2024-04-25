@@ -22,7 +22,7 @@ void trim(char s[]);
 void addNewBook(struct Library *libPtr);
 void issueBook(struct Library *libPtr);
 void returnBook(struct Library *libPtr);
-void showBookList(struct Library *libPtr);
+void showBookList(struct Library *libPtr, int all);
 struct Library loadLibrary();
 
 int main()
@@ -49,7 +49,7 @@ int main()
         }
         else if (input == 'L' || input == 'l')
         {
-            showBookList(&lib);
+            showBookList(&lib, 1);
         }
         else
         {
@@ -113,11 +113,21 @@ struct Library loadLibrary()
 
 void issueBook(struct Library *libPtr)
 {
-    showBookList(libPtr);
+    if (libPtr->availableBookCount == 0)
+    {
+        printf("No books are currently available to be issued.\n");
+        return;
+    }
+    showBookList(libPtr, 0);
     fflush(stdin);
     printf("Enter Book Serial No: ");
     int index;
     scanf("%d", &index);
+    if (index > libPtr->totalBookCount || index <= 0)
+    {
+        printf("No such serial number exists.\n");
+        return;
+    }
 
     if (libPtr->books[index - 1].available)
     {
@@ -133,11 +143,21 @@ void issueBook(struct Library *libPtr)
 
 void returnBook(struct Library *libPtr)
 {
-    showBookList(libPtr);
+    if (libPtr->availableBookCount == libPtr->totalBookCount)
+    {
+        printf("No books are currently issued.\n");
+        return;
+    }
+    showBookList(libPtr, 2);
     fflush(stdin);
     printf("Enter Book Serial No: ");
     int index;
     scanf("%d", &index);
+    if (index > libPtr->totalBookCount || index <= 0)
+    {
+        printf("No such serial number exists.\n");
+        return;
+    }
 
     if (!libPtr->books[index - 1].available)
     {
@@ -169,7 +189,7 @@ void addNewBook(struct Library *libPtr)
     printf("Book Added Successfully\n");
 }
 
-void showBookList(struct Library *libPtr)
+void showBookList(struct Library *libPtr, int all)
 {
     printf("Listing All Books\nTotal: %d | Available: %d\n", libPtr->totalBookCount, libPtr->availableBookCount);
     printf("%s\t%s\t\t\t%60s\n", "Sl.", "Title", "Author");
@@ -179,11 +199,11 @@ void showBookList(struct Library *libPtr)
     {
         if (strlen(libPtr->books[i].title) > 1)
         {
-            if (libPtr->books[i].available)
+            if (libPtr->books[i].available && all != 2)
             {
                 printf("%4d. %45s\t\t\t%20s\n", i + 1, libPtr->books[i].title, libPtr->books[i].author);
             }
-            else
+            else if (all != 0 && !libPtr->books[i].available)
             {
                 printf("%4d. %30s(Not Available)\t\t\t%20s\n", i + 1, libPtr->books[i].title, libPtr->books[i].author);
             }
