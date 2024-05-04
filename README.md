@@ -3,6 +3,7 @@
 ## Version 0.2
 
 This is a C program for managing a library. It allows users to add new books, issue and return books, view book lists, and save library data to a file.
+Note: This program is a work in progress and only works in windows. The current version is 0.2.
 
 ### Features
 
@@ -15,8 +16,8 @@ This is a C program for managing a library. It allows users to add new books, is
 
 ### Usage
 
-1. Compile the program using a C compiler (e.g., gcc library_management.c -o library_manager)
-2. Run the program (e.g., ./library_manager)
+1. Compile the program using a C compiler (e.g., `gcc main.c -o library_manager`)
+2. Run the program (e.g., `library_manager.exe`)
 3. Follow the on-screen prompts to interact with the library management system
 
 ### User Interface

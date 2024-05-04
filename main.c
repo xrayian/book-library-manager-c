@@ -86,7 +86,9 @@ void trim(char s[])
 
 void saveData(struct Library *libPtr)
 {
-    FILE *libDataPtr = fopen(FILENAME, "wb+");
+    char fileName[10000];
+    snprintf(fileName, sizeof fileName, "%s\\%s", getenv("USERPROFILE"), FILENAME); // joins the string with the user path to save the data to a centralized location.
+    FILE *libDataPtr = fopen(fileName, "wb+");
 
     if (libDataPtr == NULL)
     {
@@ -103,7 +105,9 @@ void saveData(struct Library *libPtr)
 
 struct Library loadLibraryData()
 {
-    FILE *libDataPtr = fopen(FILENAME, "rb");
+    char fileName[10000];
+    snprintf(fileName, sizeof fileName, "%s\\%s", getenv("USERPROFILE"), FILENAME);
+    FILE *libDataPtr = fopen(fileName, "rb");
     struct Library myLib;
 
     if (libDataPtr == NULL)
