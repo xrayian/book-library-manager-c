@@ -28,6 +28,8 @@ void showBookList(struct Library *libPtr, int all);
 struct Library seedPresetLibraryData();
 struct Library loadLibraryData();
 
+char FILENAME[] = "data.bin";
+
 int main()
 {
     struct Library lib = loadLibraryData();
@@ -84,7 +86,7 @@ void trim(char s[])
 
 void saveData(struct Library *libPtr)
 {
-    FILE *libDataPtr = fopen("library_data.bin", "wb+");
+    FILE *libDataPtr = fopen(FILENAME, "wb+");
 
     if (libDataPtr == NULL)
     {
@@ -101,7 +103,7 @@ void saveData(struct Library *libPtr)
 
 struct Library loadLibraryData()
 {
-    FILE *libDataPtr = fopen("library_data.bin", "rb");
+    FILE *libDataPtr = fopen(FILENAME, "rb");
     struct Library myLib;
 
     if (libDataPtr == NULL)
@@ -223,7 +225,8 @@ void returnBook(struct Library *libPtr)
 
 void addNewBook(struct Library *libPtr)
 {
-    if(libPtr->totalBookCount >= 100) {
+    if (libPtr->totalBookCount >= 100)
+    {
         printf("Sorry The Library can not hold any more books at the moment.");
         return;
     }
