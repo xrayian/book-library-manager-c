@@ -223,6 +223,10 @@ void returnBook(struct Library *libPtr)
 
 void addNewBook(struct Library *libPtr)
 {
+    if(libPtr->totalBookCount >= 100) {
+        printf("Sorry The Library can not hold any more books at the moment.");
+        return;
+    }
     fflush(stdin);
     int bookCount = libPtr->totalBookCount;
     printf("Enter Book Title: ");
