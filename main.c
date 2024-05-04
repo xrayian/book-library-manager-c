@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // structures
 struct Book
@@ -22,16 +23,18 @@ void trim(char s[]);
 void addNewBook(struct Library *libPtr);
 void issueBook(struct Library *libPtr);
 void returnBook(struct Library *libPtr);
+void saveData(struct Library *libPtr);
 void showBookList(struct Library *libPtr, int all);
-struct Library loadLibrary();
+struct Library seedPresetLibraryData();
+struct Library loadLibraryData();
 
 int main()
 {
-    struct Library lib = loadLibrary();
-    printf("Welcome to library manager v0.1\n\nSelect your operation\n");
+    struct Library lib = loadLibraryData();
+    printf("Welcome to library manager v0.2\n\nSelect your operation\n");
     while (1)
     {
-        printf("A(dd) | I(ssue) | R(eturn) | L(ist)\n> ");
+        printf("A(dd) | I(ssue) | R(eturn) | L(ist) | S(ave) | E(xit) \n> ");
         char input = '\0';
         fflush(stdin);
         scanf(" %c", &input);
@@ -51,6 +54,16 @@ int main()
         {
             showBookList(&lib, 1);
         }
+        else if (input == 'S' || input == 's')
+        {
+            saveData(&lib);
+        }
+        else if (input == 'E' || input == 'e')
+        {
+            saveData(&lib);
+            printf("goodbye!");
+            exit(0);
+        }
         else
         {
             printf("Invalid Choice, Please try again.");
@@ -69,7 +82,45 @@ void trim(char s[])
     }
 }
 
-struct Library loadLibrary()
+void saveData(struct Library *libPtr)
+{
+    FILE *libDataPtr = fopen("library_data.bin", "wb+");
+
+    if (libDataPtr == NULL)
+    {
+        printf("Critical Error: Saving data failed.\n");
+        exit(-176);
+    }
+    else
+    {
+        fwrite(libPtr, sizeof(struct Library), 1, libDataPtr);
+        printf("Data saved successfully.\n");
+    }
+    fclose(libDataPtr);
+};
+
+struct Library loadLibraryData()
+{
+    FILE *libDataPtr = fopen("library_data.bin", "rb");
+    struct Library myLib;
+
+    if (libDataPtr == NULL)
+    {
+        // library data file does not exist, create a new library data
+        printf("Welcome to library manager v0.2\nWe are setting up your library...\n");
+
+        myLib = seedPresetLibraryData();
+        saveData(&myLib);
+
+        printf("done.\n\n");
+    }
+
+    fread(&myLib, sizeof(struct Library), 1, libDataPtr);
+    fclose(libDataPtr);
+    return myLib;
+};
+
+struct Library seedPresetLibraryData()
 {
     struct Library lib = {
         {
@@ -103,10 +154,9 @@ struct Library loadLibrary()
             {"A Song of Ice and Fire", "George R. R. Martin", 9780553103540, 1},
             {"The Color Purple", "Alice Walker", 9780156028356, 1},
             {"Catch-22", "Joseph Heller", 9780684833395, 1},
-            {"Invisible Man", "Ralph Ellison", 9780679732761, 1},
         },
-        31,
-        31,
+        30,
+        30,
     };
     return lib;
 }
